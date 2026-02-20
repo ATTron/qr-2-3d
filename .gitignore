@@ -1,2 +1,5 @@
 qrgen
 vendor/*
+*.stl
+*.obj
+*.png
