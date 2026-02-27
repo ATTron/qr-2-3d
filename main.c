@@ -23,8 +23,6 @@
 #define LOGO_GRID_MAX                                                          \
   512 /* max grid cells on longest side for logo extrusion */
 
-/* ── SVG conversion helper ───────────────────────────────────────── */
-
 static bool has_svg_ext(const char *path) {
   size_t len = strlen(path);
   if (len < 4)
@@ -52,8 +50,6 @@ static bool convert_svg_to_png(const char *svg_path, char *out_path,
     return true;
   return false;
 }
-
-/* ── Logo grid for 3D extrusion ──────────────────────────────────── */
 
 /* Load an image and convert to a boolean grid (true = filled pixel).
    max_dim is the longest side in grid cells; the other side is scaled
@@ -113,8 +109,6 @@ static bool grid_filled(const bool *grid, int w, int h, int x, int y) {
   return grid[y * w + x];
 }
 
-/* ── TUI helpers ─────────────────────────────────────────────────── */
-
 static void tui_title(const char *title) {
   clear();
   attron(A_BOLD);
@@ -131,8 +125,6 @@ static void tui_prompt(int row, const char *prompt, char *buf, int bufsize) {
   curs_set(0);
 }
 
-/* ── STL helpers ─────────────────────────────────────────────────── */
-
 static void write_triangle_stl(FILE *f, float nx, float ny, float nz, float x1,
                                float y1, float z1, float x2, float y2, float z2,
                                float x3, float y3, float z3) {
@@ -148,8 +140,6 @@ static void write_triangle_stl(FILE *f, float nx, float ny, float nz, float x1,
   fwrite(&attr, sizeof(uint16_t), 1, f);
 }
 
-/* ── OBJ helpers ─────────────────────────────────────────────────── */
-
 static void write_quad_obj(FILE *f, float x1, float y1, float z1, float x2,
                            float y2, float z2, float x3, float y3, float z3,
                            float x4, float y4, float z4, int *vi) {
@@ -161,8 +151,6 @@ static void write_quad_obj(FILE *f, float x1, float y1, float z1, float x2,
   fprintf(f, "f %d %d %d %d\n", b + 1, b + 2, b + 3, b + 4);
   *vi += 4;
 }
-
-/* ── Export functions ────────────────────────────────────────────── */
 
 static bool export_png(const uint8_t *qr, int qr_size, const char *path,
                        const char *logo_path) {
@@ -257,8 +245,6 @@ static bool export_png(const uint8_t *qr, int qr_size, const char *path,
   return ok != 0;
 }
 
-/* ── Shared setup for 3D exports ─────────────────────────────────── */
-
 static void setup_logo(const char *logo_path, int qr_size, bool **out_grid,
                        int *out_gw, int *out_gh, float *out_cell, int *out_lmx0,
                        int *out_lmy0, int *out_lmw, int *out_lmh,
@@ -331,8 +317,6 @@ static bool vfill(const bool *present, int n, int vx, int vy, int vz) {
     return false;
   return (vz == 0) || present[vy * n + vx];
 }
-
-/* ── STL export (voxel-based) ────────────────────────────────────── */
 
 static bool export_stl(const uint8_t *qr, int qr_size, const char *path,
                        const char *logo_path) {
@@ -492,8 +476,6 @@ static bool export_stl(const uint8_t *qr, int qr_size, const char *path,
   return true;
 }
 
-/* ── OBJ export (voxel-based, shared vertex grid) ────────────────── */
-
 static bool export_obj(const uint8_t *qr, int qr_size, const char *path,
                        const char *logo_path) {
   FILE *f = fopen(path, "w");
@@ -594,8 +576,6 @@ static bool export_obj(const uint8_t *qr, int qr_size, const char *path,
   return true;
 }
 
-/* ── Main ────────────────────────────────────────────────────────── */
-
 int main(void) {
   char data[1024] = {0};
   char logo_path[512] = {0};
@@ -678,7 +658,6 @@ int main(void) {
     snprintf(data, sizeof(data), "WIFI:T:%s;S:%s;P:%s;;", enc, ssid, pass);
   }
 
-  /* ── Screen 3: Logo option ─────────────────────────────────── */
   tui_title("Logo Overlay");
   mvprintw(3, 4, "Add a logo to the center of the QR code?");
   mvprintw(4, 4, "(PNG: overlay, STL/OBJ: embossed extrusion)");
@@ -715,7 +694,6 @@ int main(void) {
     }
   }
 
-  /* ── Screen 4: Export format ────────────────────────────────── */
   tui_title("Export Format");
   mvprintw(3, 4, "1) PNG");
   mvprintw(4, 4, "2) STL (3D print)");
@@ -744,7 +722,6 @@ int main(void) {
     }
   }
 
-  /* ── Screen 5: Output filename ─────────────────────────────── */
   tui_title("Output Filename");
   mvprintw(3, 4, "Extensions will be added automatically.");
   tui_prompt(5, "Base name (e.g. qrcode)", basename, sizeof(basename));
@@ -755,7 +732,6 @@ int main(void) {
   /* done with TUI */
   endwin();
 
-  /* ── Generate QR code ──────────────────────────────────────── */
   uint8_t qr[qrcodegen_BUFFER_LEN_MAX];
   uint8_t tmp[qrcodegen_BUFFER_LEN_MAX];
 
